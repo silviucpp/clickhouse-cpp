@@ -31,6 +31,10 @@ ColumnRef ColumnArray::GetAsColumn(size_t n) const {
 }
 
 ColumnRef ColumnArray::Slice(size_t begin, size_t size) {
+
+    if(size == 0)
+        return std::make_shared<ColumnArray>(data_);
+
     auto result = std::make_shared<ColumnArray>(GetAsColumn(begin));
     result->OffsetsIncrease(1);
 
@@ -58,7 +62,7 @@ bool ColumnArray::Load(CodedInputStream* input, size_t rows) {
     if (!offsets_->Load(input, rows)) {
         return false;
     }
-    if (!data_->Load(input, (*offsets_)[rows - 1])) {
+    if (rows && !data_->Load(input, (*offsets_)[rows - 1])) {
         return false;
     }
     return true;
